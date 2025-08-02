@@ -35,6 +35,14 @@ module {
     empty = "";
   };
 
+  public let COMPACT_PREFIX : Format = {
+    pre = "0x";
+    post = "";
+    sep = "";
+    preItem = "";
+    empty = "";
+  };
+
   public let VERBOSE : Format = {
     pre = "[ ";
     post = " ]";
@@ -44,8 +52,8 @@ module {
   };
 
   public let COMPACT_2D : Format2D = {
-    inner = COMPACT;
-    outer : Format = {
+    inner = { pre = ""; post = ""; sep = ""; preItem = ""; empty = "0" };
+    outer = {
       pre = "[";
       post = "]";
       sep = ", ";
