@@ -25,7 +25,7 @@ assert Hex.toArray("a") == #ok([10]);
 assert Hex.toArray("123") == #ok([0x01, 0x23]);
 assert Hex.toArray("12345") == #ok([0x01, 0x23, 0x45]);
 
-assert Hex.toArray("12345g") == #err("Invalid hex byte: 5g");
+assert Hex.toArray("12345g") == #err("Invalid hex byte: \"5g\"");
 
 print("- toArrayUnsafe");
 assert Hex.toArrayUnsafe("123456") == [0x12, 0x34, 0x56];
@@ -61,12 +61,12 @@ assert Hex.toArrayFormat("[]", options) == #ok([]);
 assert Hex.toArrayFormat("123456", Hex.COMPACT) == #ok([0x12, 0x34, 0x56]);
 assert Hex.toArrayFormat("[ 0x01, 0x02 ]", Hex.VERBOSE) == #ok([1, 2]);
 assert Hex.toArrayFormat("[]", Hex.VERBOSE) == #ok([]);
-assert Hex.toArrayFormat("[ 0x01, 0x02", options) == #err("Hex value does not end with  ]: [ 0x01, 0x02");
-assert Hex.toArrayFormat(" 0x01, 0x02 ]", options) == #err("Hex value does not start with [ 0x:  0x01, 0x02 ]");
-assert Hex.toArrayFormat("0x01, 0x02 ]", options) == #err("Hex value does not start with [ 0x: 0x01, 0x02 ]");
-assert Hex.toArrayFormat("[ 01, 02 ]", options) == #err("Hex value does not start with [ 0x: [ 01, 02 ]");
-assert Hex.toArrayFormat("[ 0x01, 0x02", options) == #err("Hex value does not end with  ]: [ 0x01, 0x02");
-assert Hex.toArrayFormat("[ 0x01 0x02 ]", options) == #err("Invalid hex byte: 1 ");
+assert Hex.toArrayFormat("[ 0x01, 0x02", options) == #err("Hex value does not end with \" ]\": \"[ 0x01, 0x02\"");
+assert Hex.toArrayFormat(" 0x01, 0x02 ]", options) == #err("Hex value does not start with \"[ 0x\": \" 0x01, 0x02 ]\"");
+assert Hex.toArrayFormat("0x01, 0x02 ]", options) == #err("Hex value does not start with \"[ 0x\": \"0x01, 0x02 ]\"");
+assert Hex.toArrayFormat("[ 01, 02 ]", options) == #err("Hex value does not start with \"[ 0x\": \"[ 01, 02 ]\"");
+assert Hex.toArrayFormat("[ 0x01, 0x02", options) == #err("Hex value does not end with \" ]\": \"[ 0x01, 0x02\"");
+assert Hex.toArrayFormat("[ 0x01 0x02 ]", options) == #err("Invalid hex byte: \"1 \"");
 
 let options2D : Hex.Format2D = {
   inner = {

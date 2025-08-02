@@ -5,6 +5,7 @@ import Nat8 "mo:core/Nat8";
 import Result "mo:core/Result";
 import Text "mo:core/Text";
 import { unreachable; trap } "mo:core/Runtime";
+import Nat32 "mo:core/Nat32";
 
 /// Function to convert between hex and byte arrays
 module {
@@ -237,7 +238,7 @@ module {
         case (?a, ?b) return (a * 16) + b;
         case (_, _) {
           if (err == null) {
-            err := ?("Invalid hex byte: " # Char.toText(high) # Char.toText(low));
+            err := ?("Invalid hex byte: " # escape(Char.toText(high) # Char.toText(low)));
           };
           return 0;
         };
@@ -260,10 +261,10 @@ module {
     if (hex == options.empty) return #ok([]);
 
     // remove pre and first preItem
-    let ?withoutPre = Text.stripStart(hex, #text(options.pre # options.preItem)) else return #err("Hex value does not start with " # options.pre # options.preItem # ": " # hex);
+    let ?withoutPre = Text.stripStart(hex, #text(options.pre # options.preItem)) else return #err("Hex value does not start with " # escape(options.pre # options.preItem) # ": " # escape(hex));
 
     // remove post
-    let ?withoutPost = Text.stripEnd(withoutPre, #text(options.post)) else return #err("Hex value does not end with " # options.post # ": " # hex);
+    let ?withoutPost = Text.stripEnd(withoutPre, #text(options.post)) else return #err("Hex value does not end with " # escape(options.post) # ": " # escape(hex));
 
     // remove sep and other preItem, if present
     let withoutSep = Text.replace(withoutPost, #text(options.sep # options.preItem), "");
@@ -377,5 +378,45 @@ module {
       };
     };
   };
+
+  /// escape text to be safe to show
+  func escape(s : Text) : Text {
+    var escaped = "";
+    let esc = Char.toText('\"');
+    for (c in s.chars()) {
+      switch (c) {
+        case ('\\') { escaped #= esc # esc };
+        case ('\"') { escaped #= esc # "\"" };
+        case ('\n') { escaped #= esc # "n" };
+        case ('\r') { escaped #= esc # "r" };
+        case ('\t') { escaped #= esc # "t" };
+        case (_) {
+          let codepoint = Char.toNat32(c);
+          if (codepoint >= 32 and codepoint <= 126) {
+            // Printable ASCII
+            escaped #= Char.toText(c);
+          } else {
+            // Non-printable or extended ASCII
+            escaped #= utf16_escape(codepoint);
+          };
+        };
+      };
+    };
+    return "\"" # escaped # "\"";
+  };
+
+  /// escape a utf16 codepoint
+  func utf16_escape(codepoint : Nat32) : Text {
+    if (codepoint <= 0xFFFF) {
+      let (_, _, a, b) = Nat32.explode(codepoint);
+      return "\\u" # toText([a, b]);
+    };
+    let cp = codepoint - 0x10000;
+    let high = 0xD800 + (cp / 0x400);
+    let low = 0xDC00 + (cp % 0x400);
+    let (_, _, a, b) = Nat32.explode(high);
+    let (_, _, c, d) = Nat32.explode(low);
+    return "\\u" # toText([a, b]) # "\\u" # toText([c, d]);
+  }
 
 };
