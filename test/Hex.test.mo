@@ -6,8 +6,8 @@ assert Hex.toText([]) == "";
 assert Hex.toText([0, 1, 2, 255]) == "000102ff";
 
 assert Hex.toText2D([]) == "[]";
-assert Hex.toText2D([[]]) == "[]";
-assert Hex.toText2D([[], []]) == "[, ]";
+assert Hex.toText2D([[]]) == "[0]";
+assert Hex.toText2D([[], []]) == "[0, 0]";
 assert Hex.toText2D([[0x12, 0x34], [0x56, 0x78]]) == "[1234, 5678]";
 assert Hex.toText2D([[0xab, 0xcd], [0xef, 0x00]]) == "[abcd, ef00]";
 

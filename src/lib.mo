@@ -58,7 +58,7 @@ module {
 
   /// Convert an array of byte arrays to hex Text
   public func toText2D(bytess : [[Nat8]]) : Text {
-    let texts = Array.map(bytess, toText);
+    let texts = Array.map<[Nat8], Text>(bytess, func(bs) { if (bs.size() == 0) "0" else toText(bs) });
     return "[" # Text.join(", ", texts.vals()) # "]";
   };
 
