@@ -73,6 +73,23 @@ module {
     };
   };
 
+  public let MATRIX_2D : Format2D = {
+    inner = {
+      pre = "[ ";
+      post = " ]";
+      sep = ", ";
+      preItem = "0x";
+      empty = "[ ]";
+    };
+    outer : Format = {
+      pre = "[ ";
+      post = " ]";
+      sep = ",\n  ";
+      preItem = "";
+      empty = "[ ]";
+    };
+  };
+
   /// Access elements of an iterator two at a time
   /// Traps if `iter` contains an odd number of elements
   func pairs<T>(iter : Iter<T>) : Iter<(T, T)> {

@@ -1,4 +1,5 @@
 import Hex "../src";
+import { print } "mo:core/Debug";
 
 assert Hex.toText([0x12, 0x34, 0x56]) == "123456";
 assert Hex.toText([0xab, 0xcd, 0xef]) == "abcdef";
@@ -63,4 +64,4 @@ let options2D : Hex.Format2D = {
 assert Hex.toText2DFormat([[1, 2], []], options2D) == "< 0x01 0x02 ; ? >";
 assert Hex.toText2DFormat([], options2D) == "< >";
 assert Hex.toText2DFormat([[]], options2D) == "< ? >";
-
+assert Hex.toText2DFormat([[1, 2], [3, 4]], Hex.MATRIX_2D) == "[ [ 0x01, 0x02 ],\n  [ 0x03, 0x04 ] ]";
