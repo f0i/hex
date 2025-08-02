@@ -27,6 +27,7 @@ module {
     outer : Format;
   };
 
+  /// A `Format` constant for compact hexadecimal representation (no prefixes, postfixes, or separators).
   public let COMPACT : Format = {
     pre = "";
     post = "";
@@ -35,6 +36,7 @@ module {
     empty = "";
   };
 
+  /// A `Format` constant for compact hexadecimal representation with a single "0x" prefix for the entire string.
   public let COMPACT_PREFIX : Format = {
     pre = "0x";
     post = "";
@@ -43,6 +45,7 @@ module {
     empty = "";
   };
 
+  /// A `Format` constant for verbose hexadecimal representation, including brackets, "0x" prefixes for items, and comma separators.
   public let VERBOSE : Format = {
     pre = "[ ";
     post = " ]";
@@ -51,6 +54,7 @@ module {
     empty = "[]";
   };
 
+  /// A `Format2D` constant for compact two-dimensional hexadecimal representation.
   public let COMPACT_2D : Format2D = {
     inner = { pre = ""; post = ""; sep = ""; preItem = ""; empty = "0" };
     outer = {
@@ -62,6 +66,7 @@ module {
     };
   };
 
+  /// A `Format2D` constant for verbose two-dimensional hexadecimal representation.
   public let VERBOSE_2D : Format2D = {
     inner = VERBOSE;
     outer : Format = {
@@ -73,6 +78,7 @@ module {
     };
   };
 
+  /// A `Format2D` constant for a matrix-like representation of two-dimensional hexadecimal arrays.
   public let MATRIX_2D : Format2D = {
     inner = {
       pre = "[ ";
