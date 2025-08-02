@@ -17,11 +17,14 @@ jobs:
         with:
           mops-version: 1
 
+      - name: Install dfx
+        uses: dfinity/setup-dfx@main
+
       - name: install mops packages
         run: mops install
 
       - name: install mops toolchain
-        run: mops toolchain use latest
+        run: mops toolchain use moc latest
 
       - name: run tests
         run: mops test
