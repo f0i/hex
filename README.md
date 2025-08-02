@@ -69,6 +69,17 @@ let bytes = Hex.toArrayUnsafe("123456");
 // bytes == [0x12, 0x34, 0x56]
 ```
 
+### toArrayFormatUnsafe
+
+Converts a hex string with custom formatting to a byte array, trapping on invalid input. For more details on formatting options, see [Format](#format).
+
+```motoko
+import Hex "mo:hex";
+
+let bytes = Hex.toArrayFormatUnsafe("[ 0x01, 0x02 ]", Hex.VERBOSE);
+// bytes == [1, 2]
+```
+
 ### toText2D
 
 Converts a 2D byte array to a hex string.
@@ -126,6 +137,19 @@ print(Hex.toTextFormat([0x12, 0x34, 0x56], Hex.COMPACT));
 */
 ```
 
+**COMPACT_UPPER**
+
+A `Format` constant for compact hexadecimal representation with upper case hex values.
+
+```motoko
+import Hex "mo:hex";
+
+print(Hex.toTextFormat([0xab, 0xcd, 0xef], Hex.COMPACT_UPPER));
+/*
+ABCDEF
+*/
+```
+
 **COMPACT_PREFIX**
 
 A `Format` constant for compact hexadecimal representation with a "0x" prefix for the entire string.
@@ -149,6 +173,19 @@ import Hex "mo:hex";
 print(Hex.toTextFormat([0x12, 0x34, 0x56], Hex.VERBOSE));
 /*
 [ 0x12, 0x34, 0x56 ]
+*/
+```
+
+**VERBOSE_UPPER**
+
+A `Format` constant for verbose hexadecimal representation with upper case hex values, including brackets, "0x" prefixes for items, and comma separators.
+
+```motoko
+import Hex "mo:hex";
+
+print(Hex.toTextFormat([0xab, 0xcd, 0xef], Hex.VERBOSE_UPPER));
+/*
+[ 0xAB, 0xCD, 0xEF ]
 */
 ```
 

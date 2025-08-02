@@ -12,16 +12,17 @@ module {
   type Iter<T> = Iter.Iter<T>;
   type Result<T> = Result.Result<T, Text>;
 
-  /// Type for format options
+  /// Type for format options.
   public type Format = {
     pre : Text;
     post : Text;
     sep : Text;
     preItem : Text;
     empty : Text;
+    upper : Bool;
   };
 
-  /// Type for format options of two dimensional arrays of bytes
+  /// Type for format options of two dimensional arrays of bytes.
   public type Format2D = {
     inner : Format;
     outer : Format;
@@ -34,6 +35,17 @@ module {
     sep = "";
     preItem = "";
     empty = "";
+    upper = false;
+  };
+
+  /// A `Format` constant for compact hexadecimal representation with upper case hex values.
+  public let COMPACT_UPPER : Format = {
+    pre = "";
+    post = "";
+    sep = "";
+    preItem = "";
+    empty = "";
+    upper = true;
   };
 
   /// A `Format` constant for compact hexadecimal representation with a single "0x" prefix for the entire string.
@@ -43,6 +55,7 @@ module {
     sep = "";
     preItem = "";
     empty = "";
+    upper = false;
   };
 
   /// A `Format` constant for verbose hexadecimal representation, including brackets, "0x" prefixes for items, and comma separators.
@@ -52,17 +65,36 @@ module {
     sep = ", ";
     preItem = "0x";
     empty = "[]";
+    upper = false;
+  };
+
+  /// A `Format` constant for verbose hexadecimal representation with upper case hex values, including brackets, "0x" prefixes for items, and comma separators.
+  public let VERBOSE_UPPER : Format = {
+    pre = "[ ";
+    post = " ]";
+    sep = ", ";
+    preItem = "0x";
+    empty = "[]";
+    upper = true;
   };
 
   /// A `Format2D` constant for compact two-dimensional hexadecimal representation.
   public let COMPACT_2D : Format2D = {
-    inner = { pre = ""; post = ""; sep = ""; preItem = ""; empty = "0" };
+    inner = {
+      pre = "";
+      post = "";
+      sep = "";
+      preItem = "";
+      empty = "0";
+      upper = false;
+    };
     outer = {
       pre = "[";
       post = "]";
       sep = ", ";
       preItem = "";
       empty = "[]";
+      upper = false;
     };
   };
 
@@ -75,6 +107,7 @@ module {
       sep = ", ";
       preItem = "";
       empty = "[ ]";
+      upper = false;
     };
   };
 
@@ -86,6 +119,7 @@ module {
       sep = ", ";
       preItem = "0x";
       empty = "[ ]";
+      upper = false;
     };
     outer : Format = {
       pre = "[ ";
@@ -93,11 +127,12 @@ module {
       sep = ",\n  ";
       preItem = "";
       empty = "[ ]";
+      upper = false;
     };
   };
 
-  /// Access elements of an iterator two at a time
-  /// Traps if `iter` contains an odd number of elements
+  /// Access elements of an iterator two at a time.
+  /// Traps if `iter` contains an odd number of elements.
   func pairs<T>(iter : Iter<T>) : Iter<(T, T)> {
 
     func next() : ?(T, T) {
@@ -115,8 +150,8 @@ module {
     return { next };
   };
 
-  /// Add a single element in front of an iterator
-  /// If you need to prepend more than one element, consider using `Iter.flatten` instead
+  /// Add a single element in front of an iterator.
+  /// If you need to prepend more than one element, consider using `Iter.flatten` instead.
   func prepend<T>(element : T, iter : Iter<T>) : Iter<T> {
     var first = true;
     return {
@@ -131,7 +166,7 @@ module {
     };
   };
 
-  /// Convert a byte array to hex Text
+  /// Convert a byte array to hex Text.
   public func toText(bytes : [Nat8]) : Text {
     var out = "";
     for (byte in bytes.vals()) {
@@ -141,7 +176,7 @@ module {
     return out;
   };
 
-  /// Convert a byte array to hex Text with custom separator
+  /// Convert a byte array to hex Text with custom separator.
   /// ```motoko
   /// let options = { pre = "[ "; post = " ]"; sep = ", "; itemPre = "0x"; empty = "[]" };
   /// let hex = toTextFormat([1, 2], options)
@@ -152,17 +187,18 @@ module {
     options : Format,
   ) : Text {
     if (bytes == []) return options.empty;
-    let texts = Array.map<Nat8, Text>(bytes, func(b) { return options.preItem # toText([b]) });
+    let encoder = if (options.upper) encodeByteUpper else encodeByte;
+    let texts = Array.map<Nat8, Text>(bytes, func(b) { return options.preItem # encoder(b) });
     return options.pre # Text.join(options.sep, texts.vals()) # options.post;
   };
 
-  /// Convert an array of byte arrays to hex Text
+  /// Convert an array of byte arrays to hex Text.
   public func toText2D(bytess : [[Nat8]]) : Text {
     let texts = Array.map<[Nat8], Text>(bytess, func(bs) { if (bs == []) "0" else toText(bs) });
     return "[" # Text.join(", ", texts.vals()) # "]";
   };
 
-  /// Convert an array of byte arrays to hex Text with custom separator
+  /// Convert an array of byte arrays to hex Text with custom separator.
   /// ```motoko
   /// let options = { pre = "< "; post = " >"; sep = " ; "; empty = "?" };
   /// let hex = toText2DFormat([[1, 2], []], options)
@@ -177,7 +213,7 @@ module {
     return options.outer.pre # Text.join(options.outer.sep, texts.vals()) # options.outer.post;
   };
 
-  /// Convert hex Text into a byte array
+  /// Convert hex Text into a byte array.
   /// The input must only contain hexadecimal chars (upper or lower case)
   /// It the hex text is of odd length, it will assume a leading 0.
   public func toArray(hex : Text) : Result<[Nat8]> {
@@ -235,7 +271,7 @@ module {
     return toArray(withoutSep);
   };
 
-  /// Convert hex Text into a byte array
+  /// Convert hex Text into a byte array.
   /// Similar to `toArray` but traps if `hex` contains invalid characters
   public func toArrayUnsafe(hex : Text) : [Nat8] {
     switch (toArray(hex)) {
@@ -244,8 +280,17 @@ module {
     };
   };
 
-  /// Decode a single hex character
-  func decodeNibble(c : Char) : ?Nat8 {
+  /// Convert hex Text into a byte array.
+  /// Similar to `toArrayFormat` but traps if `hex` contains invalid characters
+  public func toArrayFormatUnsafe(hex : Text, options : Format) : [Nat8] {
+    switch (toArrayFormat(hex, options)) {
+      case (#ok(data)) return data;
+      case (#err(msg)) trap("Hex.toArrayFormatUnsafe: " # msg);
+    };
+  };
+
+  /// Decode a single hex character.
+  public func decodeNibble(c : Char) : ?Nat8 {
     switch (c) {
       case ('0') { ?0 };
       case ('1') { ?1 };
@@ -274,12 +319,17 @@ module {
   };
 
   /// Encode a byte into hex Text containing exactly two hex characters
-  func encodeByte(byte : Nat8) : Text {
+  public func encodeByte(byte : Nat8) : Text {
     return encodeNibble(byte / 16) # encodeNibble(byte % 16);
   };
 
+  /// Encode a byte into hex Text containing exactly two hex characters
+  public func encodeByteUpper(byte : Nat8) : Text {
+    return encodeNibbleUpper(byte / 16) # encodeNibbleUpper(byte % 16);
+  };
+
   /// Encode a nibble into a single hex character
-  func encodeNibble(nibble : Nat8) : Text {
+  public func encodeNibble(nibble : Nat8) : Text {
     switch (nibble) {
       case (0) { "0" };
       case (1) { "1" };
@@ -297,6 +347,31 @@ module {
       case (13) { "d" };
       case (14) { "e" };
       case (15) { "f" };
+      case (_) {
+        trap("invalid value in encodeNibble: " # Nat8.toText(nibble));
+      };
+    };
+  };
+
+  /// Encode a nibble into a single hex character
+  public func encodeNibbleUpper(nibble : Nat8) : Text {
+    switch (nibble) {
+      case (0) { "0" };
+      case (1) { "1" };
+      case (2) { "2" };
+      case (3) { "3" };
+      case (4) { "4" };
+      case (5) { "5" };
+      case (6) { "6" };
+      case (7) { "7" };
+      case (8) { "8" };
+      case (9) { "9" };
+      case (10) { "A" };
+      case (11) { "B" };
+      case (12) { "C" };
+      case (13) { "D" };
+      case (14) { "E" };
+      case (15) { "F" };
       case (_) {
         trap("invalid value in encodeNibble: " # Nat8.toText(nibble));
       };
