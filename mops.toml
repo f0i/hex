@@ -5,3 +5,6 @@ description = "Convert between Nat8 values/arrays and hexadecimal string represe
 repository = "https://github.com/f0i/hex"
 keywords = [ "hex", "encoding", "decoding", "utils", "bytes" ]
 license = "MIT"
+
+[dependencies]
+core = "0.6.0"
