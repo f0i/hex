@@ -1,4 +1,4 @@
-import {add} "../src";
+import Hex "../src";
 
-assert add(1, 2) == 3;
-assert add(3, 22) == 25;
+assert Hex.toText([0x12, 0x34, 0x56]) == "123456";
+
