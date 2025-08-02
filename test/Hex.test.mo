@@ -5,16 +5,30 @@ assert Hex.toText([0xab, 0xcd, 0xef]) == "abcdef";
 assert Hex.toText([]) == "";
 assert Hex.toText([0, 1, 2, 255]) == "000102ff";
 
+let options : Hex.Format = {
+  pre = "[ ";
+  post = " ]";
+  sep = ", ";
+  preItem = "0x";
+  empty = "[]";
+};
+assert Hex.toTextFormat([1, 2], options) == "[ 0x01, 0x02 ]";
+assert Hex.toTextFormat([], options) == "[]";
+
 assert Hex.toText2D([]) == "[]";
 assert Hex.toText2D([[]]) == "[0]";
 assert Hex.toText2D([[], []]) == "[0, 0]";
 assert Hex.toText2D([[0x12, 0x34], [0x56, 0x78]]) == "[1234, 5678]";
 assert Hex.toText2D([[0xab, 0xcd], [0xef, 0x00]]) == "[abcd, ef00]";
 
-let options = { pre = "< "; post = " >"; sep = " ; "; empty = "?" };
-assert Hex.toText2DFormat([[1, 2], []], options) == "< 0102 ; ? >";
-assert Hex.toText2DFormat([], options) == "<  >";
-assert Hex.toText2DFormat([[]], options) == "< ? >";
+let options2D : Hex.Format2D = {
+  inner = { pre = ""; post = ""; sep = " "; preItem = "0x"; empty = "?" };
+  outer = { pre = "< "; post = " >"; preItem = ""; sep = " ; "; empty = "< >" };
+};
+
+assert Hex.toText2DFormat([[1, 2], []], options2D) == "< 0x01 0x02 ; ? >";
+assert Hex.toText2DFormat([], options2D) == "< >";
+assert Hex.toText2DFormat([[]], options2D) == "< ? >";
 
 assert Hex.toArray("123456") == #ok([0x12, 0x34, 0x56]);
 assert Hex.toArray("abcdef") == #ok([0xab, 0xcd, 0xef]);
@@ -35,4 +49,3 @@ assert Hex.toArrayUnsafe("0") == [0];
 assert Hex.toArrayUnsafe("a") == [10];
 assert Hex.toArrayUnsafe("123") == [0x01, 0x23];
 assert Hex.toArrayUnsafe("12345") == [0x01, 0x23, 0x45];
-

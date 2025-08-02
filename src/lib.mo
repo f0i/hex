@@ -10,6 +10,60 @@ import { unreachable; trap } "mo:core/Runtime";
 module {
 
   type Iter<T> = Iter.Iter<T>;
+  type Result<T> = Result.Result<T, Text>;
+
+  /// Type for format options
+  public type Format = {
+    pre : Text;
+    post : Text;
+    sep : Text;
+    preItem : Text;
+    empty : Text;
+  };
+
+  /// Type for format options of two dimensional arrays of bytes
+  public type Format2D = {
+    inner : Format;
+    outer : Format;
+  };
+
+  public let COMPACT : Format = {
+    pre = "";
+    post = "";
+    sep = "";
+    preItem = "";
+    empty = "";
+  };
+
+  public let VERBOSE : Format = {
+    pre = "[ ";
+    post = " ]";
+    sep = ", ";
+    preItem = "0x";
+    empty = "[]";
+  };
+
+  public let COMPACT_2D : Format2D = {
+    inner = COMPACT;
+    outer : Format = {
+      pre = "[";
+      post = "]";
+      sep = ", ";
+      preItem = "";
+      empty = "[]";
+    };
+  };
+
+  public let VERBOSE_2D : Format2D = {
+    inner = VERBOSE;
+    outer : Format = {
+      pre = "[ ";
+      post = " ]";
+      sep = ", ";
+      preItem = "";
+      empty = "[ ]";
+    };
+  };
 
   /// Access elements of an iterator two at a time
   /// Traps if `iter` contains an odd number of elements
@@ -56,6 +110,21 @@ module {
     return out;
   };
 
+  /// Convert a byte array to hex Text with custom separator
+  /// ```motoko
+  /// let options = { pre = "[ "; post = " ]"; sep = ", "; itemPre = "0x"; empty = "[]" };
+  /// let hex = toTextFormat([1, 2], options)
+  /// assert hex == "[ 0x01, 0x02 ]"
+  /// ```
+  public func toTextFormat(
+    bytes : [Nat8],
+    options : Format,
+  ) : Text {
+    if (bytes == []) return options.empty;
+    let texts = Array.map<Nat8, Text>(bytes, func(b) { return options.preItem # toText([b]) });
+    return options.pre # Text.join(options.sep, texts.vals()) # options.post;
+  };
+
   /// Convert an array of byte arrays to hex Text
   public func toText2D(bytess : [[Nat8]]) : Text {
     let texts = Array.map<[Nat8], Text>(bytess, func(bs) { if (bs == []) "0" else toText(bs) });
@@ -70,21 +139,17 @@ module {
   /// ```
   public func toText2DFormat(
     bytess : [[Nat8]],
-    options : {
-      pre : Text;
-      post : Text;
-      sep : Text;
-      empty : Text;
-    },
+    options : Format2D,
   ) : Text {
-    let texts = Array.map<[Nat8], Text>(bytess, func(bs) { if (bs == []) options.empty else toText(bs) });
-    return options.pre # Text.join(options.sep, texts.vals()) # options.post;
+    if (bytess == []) return options.outer.empty;
+    let texts = Array.map<[Nat8], Text>(bytess, func(bs) = toTextFormat(bs, options.inner));
+    return options.outer.pre # Text.join(options.outer.sep, texts.vals()) # options.outer.post;
   };
 
   /// Convert hex Text into a byte array
   /// The input must only contain hexadecimal chars (upper or lower case)
   /// It the hex text is of odd length, it will assume a leading 0.
-  public func toArray(hex : Text) : Result.Result<[Nat8], Text> {
+  public func toArray(hex : Text) : Result<[Nat8]> {
     let chars = hex.size();
     let charsEven = chars % 2 == 0;
     let size = if charsEven { chars / 2 } else { chars / 2 + 1 };
@@ -118,6 +183,25 @@ module {
       case (?err) return #err(err);
       case (null) return #ok(arr);
     };
+  };
+
+  /// Convert hex Text into a byte array.
+  /// This just removes all separator, prefixes and postfixes from the string and then attemts to parse it.
+  /// If any of the separators or strings overlap with the hex values, the results can be unexpected and not match the original values!
+  /// e.g. if the separator in `options.sep` is set to "a", then all "a"s will be removed from the input, independend of the exact position.
+  public func toArrayFormat(hex : Text, options : Format) : Result<[Nat8]> {
+    if (hex == options.empty) return #ok([]);
+
+    // remove pre and first preItem
+    let ?withoutPre = Text.stripStart(hex, #text(options.pre # options.preItem)) else return #err("Hex value does not start with " # options.pre # options.preItem # ": " # hex);
+
+    // remove post
+    let ?withoutPost = Text.stripEnd(withoutPre, #text(options.post)) else return #err("Hex value does not end with " # options.post # ": " # hex);
+
+    // remove sep and other preItem, if present
+    let withoutSep = Text.replace(withoutPost, #text(options.sep # options.preItem), "");
+
+    return toArray(withoutSep);
   };
 
   /// Convert hex Text into a byte array
