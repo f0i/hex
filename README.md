@@ -12,6 +12,43 @@ Install the library from mops:
 mops add hex
 ```
 
+## Usage
+
+Here are some basic examples of how to use the `Hex` library:
+
+```motoko
+import Hex "mo:hex";
+
+// Convert a byte array to a hex string
+let hexString = Hex.toText([0x12, 0x34, 0x56]);
+// hexString == "123456"
+
+// Convert a hex string to a byte array
+let byteArray = Hex.toArray("123456");
+// byteArray == #ok([0x12, 0x34, 0x56])
+```
+
+### Usage with other types (Nat16, Int32, Float, ...)
+
+To convert other types like `Nat` to hexadecimal strings, you can first convert them to a `Nat8` array using a library like [`byte-utils`](https://mops.one/byte-utils), and then use `Hex.toText`.
+
+First, install `byte-utils`:
+
+```bash
+mops add byte-utils
+```
+
+Then, in your Motoko code:
+
+```motoko
+import Hex "mo:hex";
+import ByteUtils "mo:byte-utils";
+
+let bytes = ByteUtils.BE.fromNat16(0x1234); // Convert Nat16 to Big Endian byte array
+let hex = Hex.toText(bytes);
+// hex == "1234"
+```
+
 ## API
 
 ### toText
