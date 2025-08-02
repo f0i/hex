@@ -11,6 +11,11 @@ assert Hex.toText2D([[], []]) == "[0, 0]";
 assert Hex.toText2D([[0x12, 0x34], [0x56, 0x78]]) == "[1234, 5678]";
 assert Hex.toText2D([[0xab, 0xcd], [0xef, 0x00]]) == "[abcd, ef00]";
 
+let options = { pre = "< "; post = " >"; sep = " -- "; empty = "?" };
+assert Hex.toText2DFormat([[1, 2], []], options) == "< 0102 -- ? >";
+assert Hex.toText2DFormat([], options) == "<  >";
+assert Hex.toText2DFormat([[]], options) == "< ? >";
+
 assert Hex.toArray("123456") == #ok([0x12, 0x34, 0x56]);
 assert Hex.toArray("abcdef") == #ok([0xab, 0xcd, 0xef]);
 assert Hex.toArray("AbCdEf") == #ok([0xab, 0xcd, 0xef]);

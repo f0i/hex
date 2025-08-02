@@ -58,8 +58,27 @@ module {
 
   /// Convert an array of byte arrays to hex Text
   public func toText2D(bytess : [[Nat8]]) : Text {
-    let texts = Array.map<[Nat8], Text>(bytess, func(bs) { if (bs.size() == 0) "0" else toText(bs) });
+    let texts = Array.map<[Nat8], Text>(bytess, func(bs) { if (bs == []) "0" else toText(bs) });
     return "[" # Text.join(", ", texts.vals()) # "]";
+  };
+
+  /// Convert an array of byte arrays to hex Text with custom separator
+  /// ```motoko
+  /// let options = { pre = "< "; post = " >"; sep = " -- "; empty = "?" };
+  /// let hex = toText2DFormat([[1, 2], []], options)
+  /// assert hex == "< 0102 ; ? >"
+  /// ```
+  public func toText2DFormat(
+    bytess : [[Nat8]],
+    options : {
+      pre : Text;
+      post : Text;
+      sep : Text;
+      empty : Text;
+    },
+  ) : Text {
+    let texts = Array.map<[Nat8], Text>(bytess, func(bs) { if (bs == []) options.empty else toText(bs) });
+    return options.pre # Text.join(options.sep, texts.vals()) # options.post;
   };
 
   /// Convert hex Text into a byte array
