@@ -19,7 +19,7 @@ module {
       switch (iter.next(), iter.next()) {
         case (?a, ?b) { return ?(a, b) };
         case (?_, null) {
-          trap("Warning: discard last (odd) element from iterator in paris()");
+          trap("Warning: discard last (odd) element from iterator in pairs()");
           return null;
         };
         case (null, ?_) { unreachable() };
@@ -64,7 +64,7 @@ module {
 
   /// Convert an array of byte arrays to hex Text with custom separator
   /// ```motoko
-  /// let options = { pre = "< "; post = " >"; sep = " -- "; empty = "?" };
+  /// let options = { pre = "< "; post = " >"; sep = " ; "; empty = "?" };
   /// let hex = toText2DFormat([[1, 2], []], options)
   /// assert hex == "< 0102 ; ? >"
   /// ```
