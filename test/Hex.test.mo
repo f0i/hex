@@ -97,3 +97,37 @@ assert Hex.toText2DFormat([[1, 2], []], options2D) == "< 0x01 0x02 ; ? >";
 assert Hex.toText2DFormat([], options2D) == "< >";
 assert Hex.toText2DFormat([[]], options2D) == "< ? >";
 assert Hex.toText2DFormat([[1, 2], [3, 4]], Hex.MATRIX_2D) == "[ [ 0x01, 0x02 ],\n  [ 0x03, 0x04 ] ]";
+
+print("- Helper Functions");
+// decodeNibble
+assert Hex.decodeNibble('0') == ?0;
+assert Hex.decodeNibble('9') == ?9;
+assert Hex.decodeNibble('a') == ?10;
+assert Hex.decodeNibble('f') == ?15;
+assert Hex.decodeNibble('A') == ?10;
+assert Hex.decodeNibble('F') == ?15;
+assert Hex.decodeNibble('g') == null;
+
+// encodeNibble
+assert Hex.encodeNibble(0) == "0";
+assert Hex.encodeNibble(9) == "9";
+assert Hex.encodeNibble(10) == "a";
+assert Hex.encodeNibble(15) == "f";
+
+// encodeNibbleUpper
+assert Hex.encodeNibbleUpper(0) == "0";
+assert Hex.encodeNibbleUpper(9) == "9";
+assert Hex.encodeNibbleUpper(10) == "A";
+assert Hex.encodeNibbleUpper(15) == "F";
+
+// encodeByte
+assert Hex.encodeByte(0x00) == "00";
+assert Hex.encodeByte(0x01) == "01";
+assert Hex.encodeByte(0x0a) == "0a";
+assert Hex.encodeByte(0xff) == "ff";
+
+// encodeByteUpper
+assert Hex.encodeByteUpper(0x00) == "00";
+assert Hex.encodeByteUpper(0x01) == "01";
+assert Hex.encodeByteUpper(0x0a) == "0A";
+assert Hex.encodeByteUpper(0xff) == "FF";

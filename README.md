@@ -141,7 +141,7 @@ let hex = Hex.toText2DFormat([[1,2], []], Hex.COMPACT_2D);
 
 ## Constants
 
-### Format
+### Type: Format
 
 `Format` is a record type used to define custom formatting options for hexadecimal strings.
 
@@ -226,7 +226,7 @@ print(Hex.toTextFormat([0xab, 0xcd, 0xef], Hex.VERBOSE_UPPER));
 */
 ```
 
-### Format2D
+### Type: Format2D
 
 `Format2D` is a record type used to define custom formatting options for two-dimensional hexadecimal strings. It contains two `Format` records: `inner` for the inner arrays and `outer` for the outer array.
 
@@ -266,6 +266,16 @@ import Hex "mo:hex";
 print(Hex.toText2DFormat([[0x12, 0x34], [0x56, 0x78]], Hex.VERBOSE_2D));
 /*
 [ [ 0x12, 0x34 ], [ 0x56, 0x78 ] ]
+*/
+```
+
+Example:
+```motoko
+import Hex "mo:hex";
+
+print(Hex.toText2DFormat([[0x01, 0x02], [0x03, 0x04]], Hex.VERBOSE_2D));
+/*
+[ 0x01, 0x02 ], [ 0x03, 0x04 ]
 */
 ```
 
