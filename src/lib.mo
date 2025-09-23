@@ -79,6 +79,16 @@ module {
     upper = true;
   };
 
+  /// A `Format` constant for URL encoding with upper case hex values, "%" prefixes for items.
+  public let URL : Format = {
+    pre = "";
+    post = "";
+    sep = "";
+    preItem = "%";
+    empty = "";
+    upper = true;
+  };
+
   /// A `Format2D` constant for compact two-dimensional hexadecimal representation.
   public let COMPACT_2D : Format2D = {
     inner = {
