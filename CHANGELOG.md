@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.2 - 2025-09-23
+
+### Update Dependencies
+
+- update to core@1.0.0
+
+### Add format options
+
+- Add formatting option for URL encoded bytes (`URL`)
+
 ## 1.0.1 - 2025-08-02
 
 ### Changed
